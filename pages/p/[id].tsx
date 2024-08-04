@@ -17,7 +17,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
     },
     include: {
       author: {
-        select: { name: true, email: true },
+        select: { name: true, email: true, username: true },
       },
     },
   });
@@ -46,40 +46,77 @@ const Post: React.FC<{ post: PostProps }> = (props) => {
   }
   const userHasValidSession = Boolean(session);
   const postBelongsToUser = session?.user?.email === props.post.author?.email;
-  let title = props.post.title;
-  if (!props.post.published) {
-    title = `${title} (Draft)`;
-  }
+
+  const shareableLink = `${process.env.NEXT_PUBLIC_SITE_URL}/post/${props.post.author?.username}/${props.post.slug}`;
+
+  const editPost = () => {
+    Router.push(`/edit/${props.post.id}`);
+  };
+
+  const publishPost = async (id: string) => {
+    await fetch(`/api/publish/${id}`, {
+      method: 'PUT',
+    });
+    await Router.push('/');
+  };
+
+  const deletePost = async (id: string) => {
+    await fetch(`/api/post/${id}`, {
+      method: 'DELETE',
+    });
+    Router.push('/');
+  };
 
   return (
     <Layout>
       <div>
-        <h2>{title}</h2>
+        <h2>{props.post.title}</h2>
         <p>By {props.post.author?.name || 'Unknown author'}</p>
-        <ReactMarkdown children={props.post.content} />
-        {!props.post.published && userHasValidSession && postBelongsToUser && (
-          <button onClick={() => publishPost(props.post.id)}>Publish</button>
+        {props.post.published && (
+          <div>
+            <p>Shareable link:</p>
+            <input type="text" value={shareableLink} readOnly />
+          </div>
         )}
+        <ReactMarkdown children={props.post.content} />
         {userHasValidSession && postBelongsToUser && (
-          <button onClick={() => deletePost(props.post.id)}>Delete</button>
+          <div className="actions">
+            {!props.post.published && (
+              <button onClick={() => publishPost(props.post.id)}>Publish</button>
+            )}
+            <button onClick={() => editPost()}>Edit</button>
+            <button onClick={() => deletePost(props.post.id)}>Delete</button>
+          </div>
         )}
       </div>
+      <style jsx>{`
+        .page {
+          background: var(--geist-background);
+          padding: 2rem;
+        }
+
+        .actions {
+          margin-top: 2rem;
+        }
+
+        button {
+          background: #ececec;
+          border: 0;
+          border-radius: 0.125rem;
+          padding: 1rem 2rem;
+          margin-right: 1rem;
+        }
+
+        input[type="text"] {
+          width: 100%;
+          padding: 0.5rem;
+          margin: 0.5rem 0;
+          border-radius: 0.25rem;
+          border: 0.125rem solid rgba(0, 0, 0, 0.2);
+        }
+      `}</style>
     </Layout>
   );
 };
-
-async function publishPost(id: string): Promise<void> {
-  await fetch(`/api/publish/${id}`, {
-    method: 'PUT',
-  });
-  await Router.push('/');
-}
-
-async function deletePost(id: string): Promise<void> {
-  await fetch(`/api/post/${id}`, {
-    method: 'DELETE',
-  });
-  Router.push('/');
-}
 
 export default Post;

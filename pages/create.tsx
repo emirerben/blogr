@@ -11,18 +11,14 @@ const CreatePost: React.FC = () => {
   const submitData = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     try {
-      const body = { title, content };
+      const body = { title, content, published: false }; // Explicitly set published to false
       const response = await fetch('/api/post', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
       const data = await response.json();
-      if (session?.user?.username) {
-        await Router.push(`/${session.user.username}`);
-      } else {
-        await Router.push('/set-username');
-      }
+      await Router.push('/drafts'); // Redirect to drafts page after creation
     } catch (error) {
       console.error("Error submitting data:", error);
     }
@@ -40,7 +36,7 @@ const CreatePost: React.FC = () => {
     <Layout>
       <div>
         <form onSubmit={submitData}>
-          <h1>Create Post</h1>
+          <h1>Create Draft</h1>
           <input
             autoFocus
             onChange={(e) => setTitle(e.target.value)}
@@ -55,7 +51,7 @@ const CreatePost: React.FC = () => {
             rows={8}
             value={content}
           />
-          <input disabled={!content || !title} type="submit" value="Create" />
+          <input disabled={!content || !title} type="submit" value="Save Draft" />
           <a className="back" href="#" onClick={() => Router.push('/')}>
             or Cancel
           </a>

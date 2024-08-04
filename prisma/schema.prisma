@@ -18,7 +18,7 @@ model Post {
   published Boolean  @default(false)
   author    User?    @relation(fields: [authorId], references: [id])
   authorId  String?
-  slug      String?  // Make this optional for now
+  slug      String?  @unique  // Make this optional for now
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) // Add a default value
 }
