@@ -1,57 +1,32 @@
 import React from "react"
-import { GetStaticProps } from "next"
 import Layout from "../components/Layout"
-import Post, { PostProps } from "../components/Post"
-import prisma from "../lib/prisma"
+import Link from "next/link"
+import { useSession } from 'next-auth/react'
 
-export const getStaticProps: GetStaticProps = async () => {
-  const feed = await prisma.post.findMany({
-    where: { published: true },
-    include: {
-      author: {
-        select: { name: true },
-      },
-    },
-  });
-  return {
-    props: { feed },
-    revalidate: 10,
-  };
-};
+const Home: React.FC = () => {
+  const { data: session, status } = useSession()
 
-type Props = {
-  feed: PostProps[]
-}
+  if (status === 'loading') {
+    return <div>Loading...</div>
+  }
 
-const Blog: React.FC<Props> = (props) => {
   return (
     <Layout>
       <div className="page">
-        <h1>Public Feed</h1>
-        <main>
-          {props.feed.map((post) => (
-            <div key={post.id} className="post">
-              <Post post={post} />
-            </div>
-          ))}
-        </main>
+        <h1>Welcome to Our Blogging Platform</h1>
+        {session ? (
+          <>
+            <p>Welcome, {session.user.name}!</p>
+            <Link href="/create">
+              <a>Create new post</a>
+            </Link>
+          </>
+        ) : (
+          <p>Please sign in to create posts.</p>
+        )}
       </div>
-      <style jsx>{`
-        .post {
-          background: white;
-          transition: box-shadow 0.1s ease-in;
-        }
-
-        .post:hover {
-          box-shadow: 1px 1px 3px #aaa;
-        }
-
-        .post + .post {
-          margin-top: 2rem;
-        }
-      `}</style>
     </Layout>
   )
 }
 
-export default Blog
+export default Home

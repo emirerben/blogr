@@ -11,6 +11,8 @@ export type PostProps = {
   } | null;
   content: string;
   published: boolean;
+  createdAt: string | null;
+  updatedAt: string | null;
 };
 
 const Post: React.FC<{ post: PostProps }> = ({ post }) => {
