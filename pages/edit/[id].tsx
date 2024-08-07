@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { GetServerSideProps } from 'next';
 import { useSession } from 'next-auth/react';
 import Layout from '../../components/Layout';
 import Router from 'next/router';
 import prisma from '../../lib/prisma';
+import styles from '../p/PostBody.module.css';
+import Button from '../../components/Button';
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const post = await prisma.post.findUnique({
@@ -30,11 +32,23 @@ const EditPost: React.FC<{ post: any }> = ({ post }) => {
   const [title, setTitle] = useState(post.title);
   const [content, setContent] = useState(post.content);
   const { data: session, status } = useSession();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const adjustTextareaHeight = () => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  };
 
   useEffect(() => {
     if (status === 'loading') return; // Do nothing while loading
     if (!session) Router.push('/');
   }, [session, status]);
+
+  useEffect(() => {
+    adjustTextareaHeight();
+  }, [content]);
 
   if (status === 'loading') {
     return <div>Authenticating ...</div>;
@@ -57,10 +71,10 @@ const EditPost: React.FC<{ post: any }> = ({ post }) => {
 
   return (
     <Layout>
-      <div>
+      <div className={styles.formContainer}>
         <form onSubmit={submitData}>
-          <h1>Edit {post.published ? 'Post' : 'Draft'}</h1>
           <input
+            className={styles.input}
             autoFocus
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Title"
@@ -68,46 +82,28 @@ const EditPost: React.FC<{ post: any }> = ({ post }) => {
             value={title}
           />
           <textarea
-            cols={50}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Content"
-            rows={8}
+            ref={textareaRef}
+            className={styles.textarea}
+            onChange={(e) => {
+              setContent(e.target.value);
+              adjustTextareaHeight();
+            }}
+            placeholder="Write your post content here..."
             value={content}
           />
-          <input disabled={!content || !title} type="submit" value="Update" />
-          <a className="back" href="#" onClick={() => Router.push(post.published ? `/p/${post.id}` : '/drafts')}>
-            or Cancel
-          </a>
+          <div className={styles.actions}>
+            <Button
+              disabled={!content || !title}
+              type="submit"
+            >
+              Update {post.published ? 'Post' : 'Draft'}
+            </Button>
+            <a className={styles.back} href="#" onClick={() => Router.push(post.published ? `/p/${post.id}` : '/drafts')}>
+              or Cancel
+            </a>
+          </div>
         </form>
       </div>
-      <style jsx>{`
-        .page {
-          background: var(--geist-background);
-          padding: 3rem;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-
-        input[type='text'],
-        textarea {
-          width: 100%;
-          padding: 0.5rem;
-          margin: 0.5rem 0;
-          border-radius: 0.25rem;
-          border: 0.125rem solid rgba(0, 0, 0, 0.2);
-        }
-
-        input[type='submit'] {
-          background: #ececec;
-          border: 0;
-          padding: 1rem 2rem;
-        }
-
-        .back {
-          margin-left: 1rem;
-        }
-      `}</style>
     </Layout>
   );
 };

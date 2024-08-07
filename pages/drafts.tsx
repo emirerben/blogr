@@ -72,10 +72,10 @@ const Drafts: React.FC<{ drafts: PostProps[] }> = (props) => {
         <h1>My Drafts</h1>
         <main className={styles.mainContent}>
           {props.drafts.map((post) => (
-            <div key={post.id} className="post">
+            <div key={post.id} className={styles.Post}>
               <Post post={post} />
-              <Button onClick={() => editPost(post.id)}>Edit</Button>
-              <Button onClick={() => publishPost(post.id)}>Publish</Button>
+              {/* <Button onClick={() => editPost(post.id)}>Edit</Button>
+              <Button onClick={() => publishPost(post.id)}>Publish</Button> */}
             </div>
           ))}
         </main>

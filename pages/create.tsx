@@ -1,14 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Layout from '../components/Layout';
 import Router from 'next/router';
 import { useSession } from 'next-auth/react';
-import styles from '../pages/p/PostBody.module.css'
+import styles from '../pages/p/PostBody.module.css';
 import Button from '../components/Button';
 
 const CreatePost: React.FC = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const { data: session } = useSession();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const adjustTextareaHeight = () => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  };
+
+  useEffect(() => {
+    adjustTextareaHeight();
+  }, [content]);
 
   const submitData = async (e: React.SyntheticEvent) => {
     e.preventDefault();
@@ -36,9 +48,8 @@ const CreatePost: React.FC = () => {
 
   return (
     <Layout>
-      <div className={styles.page}>
+      <div className={styles.formContainer}>
         <form onSubmit={submitData}>
-          <h1 className={styles.title}>Create Draft</h1>
           <input
             className={styles.input}
             autoFocus
@@ -48,11 +59,13 @@ const CreatePost: React.FC = () => {
             value={title}
           />
           <textarea
+            ref={textareaRef}
             className={styles.textarea}
-            cols={50}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Content"
-            rows={8}
+            onChange={(e) => {
+              setContent(e.target.value);
+              adjustTextareaHeight();
+            }}
+            placeholder="Write your post content here..."
             value={content}
           />
           <div className={styles.actions}>
