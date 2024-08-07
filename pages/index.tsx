@@ -5,6 +5,8 @@ import Post, { PostProps } from "../components/Post"
 import prisma from '../lib/prisma'
 import { useSession, getSession } from 'next-auth/react'
 import Link from 'next/link'
+import styles from '../components/Post.module.css'
+import Button from '../components/Button';
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   const session = await getSession({ req });
@@ -38,11 +40,7 @@ type Props = {
 }
 
 const Blog: React.FC<Props> = (props) => {
-  const { data: session, status } = useSession();
-
-  if (status === 'loading') {
-    return <div>Loading...</div>
-  }
+  const { data: session } = useSession();
 
   if (!session) {
     return (
@@ -55,14 +53,12 @@ const Blog: React.FC<Props> = (props) => {
 
   return (
     <Layout>
-      <div className="page">
+      <div className={styles.page}>
         <h1>My Published Posts</h1>
-        <main>
+        <main className={styles.mainContent}>
           {props.feed.length > 0 ? (
             props.feed.map((post) => (
-              <div key={post.id} className="post">
-                <Post post={post} />
-              </div>
+              <Post key={post.id} post={post} />
             ))
           ) : (
             <p>You haven't published any posts yet.</p>
@@ -70,46 +66,12 @@ const Blog: React.FC<Props> = (props) => {
         </main>
         <div className="actions">
           <Link href="/create">
-            <button>Create New Post</button>
+            <Button>Create New Post</Button>
           </Link>
-          <Link href="/drafts">
-            <button>View Drafts</button>
-          </Link>
+
         </div>
       </div>
-      <style jsx>{`
-        .post {
-          background: white;
-          transition: box-shadow 0.1s ease-in;
-          border: 1px solid #eaeaea;
-          border-radius: 8px;
-          margin-bottom: 20px;
-        }
 
-        .post:hover {
-          box-shadow: 1px 1px 3px #aaa;
-        }
-
-        .post + .post {
-          margin-top: 2rem;
-        }
-
-        .actions {
-          margin-top: 2rem;
-        }
-
-        button {
-          background: #ececec;
-          border: 0;
-          border-radius: 0.125rem;
-          padding: 1rem 2rem;
-          margin-right: 1rem;
-        }
-
-        button:hover {
-          background: #e6e6e6;
-        }
-      `}</style>
     </Layout>
   )
 }

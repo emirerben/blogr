@@ -5,6 +5,9 @@ import Layout from '../components/Layout';
 import Post, { PostProps } from '../components/Post';
 import prisma from '../lib/prisma';
 import Router from 'next/router';
+import styles from '../components/Post.module.css';
+import Button from '../components/Button';
+
 
 // Helper function to convert Date to ISO string
 const toISOString = (date: Date | null) => date?.toISOString() ?? null;
@@ -65,36 +68,19 @@ const Drafts: React.FC<{ drafts: PostProps[] }> = (props) => {
 
   return (
     <Layout>
-      <div className="page">
+      <div className={styles.page}>
         <h1>My Drafts</h1>
-        <main>
+        <main className={styles.mainContent}>
           {props.drafts.map((post) => (
             <div key={post.id} className="post">
               <Post post={post} />
-              <button onClick={() => editPost(post.id)}>Edit</button>
-              <button onClick={() => publishPost(post.id)}>Publish</button>
+              <Button onClick={() => editPost(post.id)}>Edit</Button>
+              <Button onClick={() => publishPost(post.id)}>Publish</Button>
             </div>
           ))}
         </main>
+        
       </div>
-      <style jsx>{`
-        .post {
-          background: white;
-          transition: box-shadow 0.1s ease-in;
-          border: 1px solid #eaeaea;
-          border-radius: 8px;
-          margin-bottom: 20px;
-        }
-        .post:hover {
-          box-shadow: 1px 1px 3px #aaa;
-        }
-        .post + .post {
-          margin-top: 2rem;
-        }
-        button {
-          margin-right: 0.5rem;
-        }
-      `}</style>
     </Layout>
   );
 };

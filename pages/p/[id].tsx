@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { GetServerSideProps } from 'next';
 import ReactMarkdown from 'react-markdown';
 import Router from 'next/router';
@@ -6,6 +6,8 @@ import Layout from '../../components/Layout';
 import { PostProps } from '../../components/Post';
 import { useSession } from 'next-auth/react';
 import prisma from '../../lib/prisma';
+import Button from '../../components/Button';
+import styles from './PostBody.module.css';
 
 // Helper function to safely convert Date to ISO string
 const toISOString = (date: Date | null | undefined) => date?.toISOString() ?? null;
@@ -41,6 +43,8 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 
 const Post: React.FC<{ post: PostProps }> = (props) => {
   const { data: session, status } = useSession();
+  const [copySuccess, setCopySuccess] = useState('');
+
   if (status === 'loading') {
     return <div>Authenticating ...</div>;
   }
@@ -48,6 +52,16 @@ const Post: React.FC<{ post: PostProps }> = (props) => {
   const postBelongsToUser = session?.user?.email === props.post.author?.email;
 
   const shareableLink = `${process.env.NEXT_PUBLIC_SITE_URL}/post/${props.post.author?.username}/${props.post.slug}`;
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(shareableLink);
+      setCopySuccess('Link copied!');
+      setTimeout(() => setCopySuccess(''), 2000); // Clear message after 2 seconds
+    } catch (err) {
+      setCopySuccess('Failed to copy');
+    }
+  };
 
   const editPost = () => {
     Router.push(`/edit/${props.post.id}`);
@@ -69,52 +83,28 @@ const Post: React.FC<{ post: PostProps }> = (props) => {
 
   return (
     <Layout>
-      <div>
-        <h2>{props.post.title}</h2>
-        <p>By {props.post.author?.name || 'Unknown author'}</p>
+      <div className={styles.page}>
+        <h2 className={styles.title}>{props.post.title}</h2>
+        <p className={styles.author}>By {props.post.author?.name || 'Unknown author'}</p>
         {props.post.published && (
-          <div>
-            <p>Shareable link:</p>
-            <input type="text" value={shareableLink} readOnly />
+          <div className={styles.shareLink}>
+            <Button className={styles.button} onClick={copyToClipboard}>Share</Button>
+            {copySuccess && <span className={styles.copyMessage}>{copySuccess}</span>}
           </div>
         )}
-        <ReactMarkdown children={props.post.content} />
+        <div className={styles.content}>
+          <ReactMarkdown>{props.post.content}</ReactMarkdown>
+        </div>
         {userHasValidSession && postBelongsToUser && (
-          <div className="actions">
+          <div className={styles.actions}>
             {!props.post.published && (
-              <button onClick={() => publishPost(props.post.id)}>Publish</button>
+              <Button className={styles.button} onClick={() => publishPost(props.post.id)}>Publish</Button>
             )}
-            <button onClick={() => editPost()}>Edit</button>
-            <button onClick={() => deletePost(props.post.id)}>Delete</button>
+            <Button className={styles.button} onClick={() => editPost()}>Edit</Button>
+            <Button className={styles.button} onClick={() => deletePost(props.post.id)}>Delete</Button>
           </div>
         )}
       </div>
-      <style jsx>{`
-        .page {
-          background: var(--geist-background);
-          padding: 2rem;
-        }
-
-        .actions {
-          margin-top: 2rem;
-        }
-
-        button {
-          background: #ececec;
-          border: 0;
-          border-radius: 0.125rem;
-          padding: 1rem 2rem;
-          margin-right: 1rem;
-        }
-
-        input[type="text"] {
-          width: 100%;
-          padding: 0.5rem;
-          margin: 0.5rem 0;
-          border-radius: 0.25rem;
-          border: 0.125rem solid rgba(0, 0, 0, 0.2);
-        }
-      `}</style>
     </Layout>
   );
 };
