@@ -2,6 +2,23 @@ import NextAuth, { NextAuthOptions } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import prisma from '../../../lib/prisma'
+import { User } from "@prisma/client"
+
+// Add these type declarations
+import { DefaultSession } from "next-auth"
+
+declare module "next-auth" {
+  interface Session extends DefaultSession {
+    user?: {
+      id: string;
+      username?: string | null;
+    } & DefaultSession["user"]
+  }
+
+  interface User {
+    username?: string | null;
+  }
+}
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -42,9 +59,9 @@ export const authOptions: NextAuthOptions = {
       return true; // Allow sign in
     },
     async session({ session, user }) {
-      if (session?.user) {
+      if (session.user) {
         session.user.id = user.id;
-        session.user.username = user.username || null;
+        session.user.username = (user as User).username || null;
       }
       return session;
     },
