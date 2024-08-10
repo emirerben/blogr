@@ -1,9 +1,9 @@
-import NextAuth from "next-auth"
+import NextAuth, { NextAuthOptions } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import prisma from '../../../lib/prisma'
 
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
@@ -11,6 +11,7 @@ export const authOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
   ],
+  secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
       const existingUser = await prisma.user.findUnique({
@@ -57,7 +58,7 @@ export const authOptions = {
   pages: {
     signIn: '/auth/signin',
   },
-  debug: true, // Enable debug messages
+  debug: process.env.NODE_ENV === 'development',
 }
 
 export default NextAuth(authOptions)
