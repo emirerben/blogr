@@ -30,8 +30,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
     updatedAt: toISOString(post.updatedAt),
     author: post.author ? {
       ...post.author,
-      createdAt: toISOString(post.author.createdAt),
-      updatedAt: toISOString(post.author.updatedAt),
+
     } : null
   }))
 

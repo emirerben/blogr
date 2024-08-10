@@ -84,3 +84,17 @@
   .mainContent {
     padding-bottom: 2rem;
   }
+
+  .createNewPost {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+  }
+
+  @media (max-width: 600px) {
+    .createNewPost {
+      bottom: 1rem;
+      right: 1rem;
+    }
+  }

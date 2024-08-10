@@ -98,10 +98,25 @@ const Post: React.FC<{ post: PostProps }> = (props) => {
         {userHasValidSession && postBelongsToUser && (
           <div className={styles.actions}>
             {!props.post.published && (
-              <Button className={styles.button} onClick={() => publishPost(props.post.id)}>Publish</Button>
+              <Button
+                className={`${styles.actionButton} ${styles.publishButton}`}
+                onClick={() => publishPost(props.post.id)}
+              >
+                Publish
+              </Button>
             )}
-            <Button className={styles.button} onClick={() => editPost()}>Edit</Button>
-            <Button className={styles.button} onClick={() => deletePost(props.post.id)}>Delete</Button>
+            <Button
+              className={`${styles.actionButton} ${styles.editButton}`}
+              onClick={editPost}
+            >
+              Edit
+            </Button>
+            <Button
+              className={`${styles.actionButton} ${styles.deleteButton}`}
+              onClick={() => deletePost(props.post.id)}
+            >
+              Delete
+            </Button>
           </div>
         )}
       </div>

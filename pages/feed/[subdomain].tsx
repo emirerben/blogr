@@ -23,7 +23,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const feed = await prisma.post.findMany({
     where: { 
       published: true,
-      subdomain: subdomain
     },
     include: {
       author: {

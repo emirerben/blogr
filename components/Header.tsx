@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import Button from './Button';
+import styles from './Header.module.css';
+import buttonStyles from './Button.module.css';
 
 const Header: React.FC = () => {
   const router = useRouter();
@@ -12,31 +14,10 @@ const Header: React.FC = () => {
   const { data: session, status } = useSession();
 
   let left = (
-    <div className="left">
-      <Link href="/">
-        <a className="bold" data-active={isActive('/')}>
-          Feed
-        </a>
-      </Link>
-      <style jsx>{`
-        .bold {
-          font-weight: bold;
-        }
-
-        a {
-          text-decoration: none;
-          color: var(--geist-foreground);
-          display: inline-block;
-        }
-
-        .left a[data-active='true'] {
-          color: gray;
-        }
-
-        a + a {
-          margin-left: 1rem;
-        }
-      `}</style>
+    <div className={styles.left}>
+    <Link href="/" className={styles.navLink} data-active={isActive('/')}>
+  Feed
+</Link>
     </div>
   );
 
@@ -44,163 +25,66 @@ const Header: React.FC = () => {
 
   if (status === 'loading') {
     left = (
-      <div className="left">
-        <Link href="/">
-          <a className="bold" data-active={isActive('/')}>
-            Feed
-          </a>
-        </Link>
-        <style jsx>{`
-          .bold {
-            font-weight: bold;
-          }
-
-          a {
-            text-decoration: none;
-            color: var(--geist-foreground);
-            display: inline-block;
-          }
-
-          .left a[data-active='true'] {
-            color: gray;
-          }
-
-          a + a {
-            margin-left: 1rem;
-          }
-        `}</style>
+      <div className={styles.left}>
+<Link href="/" className={styles.navLink} data-active={isActive('/')}>
+  Feed
+</Link>
       </div>
     );
     right = (
-      <div className="right">
+      <div className={styles.right}>
         <p>Validating session ...</p>
-        <style jsx>{`
-          .right {
-            margin-left: auto;
-          }
-        `}</style>
       </div>
     );
   }
 
   if (!session) {
     right = (
-      <div className="right">
+      <div className={styles.right}>
         <Button onClick={() => signIn('google')}>
           Sign in with Google
         </Button>
-        <style jsx>{`
-          a {
-            text-decoration: none;
-            color: var(--geist-foreground);
-            display: inline-block;
-          }
-
-          a + a {
-            margin-left: 1rem;
-          }
-
-          .right {
-            margin-left: auto;
-          }
-
-          .right a {
-            border: 1px solid var(--geist-foreground);
-            padding: 0.5rem 1rem;
-            border-radius: 3px;
-          }
-        `}</style>
       </div>
     );
   }
 
   if (session) {
     left = (
-      <div className="left">
-        <Link href="/">
-          <a className="bold" data-active={isActive('/')}>
-            Feed
-          </a>
-        </Link>
-        <Link href="/drafts">
-          <a data-active={isActive('/drafts')}>My drafts</a>
-        </Link>
-        <style jsx>{`
-          .bold {
-            font-weight: bold;
-          }
-
-          a {
-            text-decoration: none;
-            color: var(--geist-foreground);
-            display: inline-block;
-          }
-
-          .left a[data-active='true'] {
-            color: gray;
-          }
-
-          a + a {
-            margin-left: 1rem;
-          }
-        `}</style>
+      <div className={styles.left}>
+<Link href="/" className={styles.navLink} data-active={isActive('/')}>
+  Feed
+</Link>
+<Link href="/drafts" className={styles.navLink} data-active={isActive('/drafts')}>
+  My drafts
+</Link>
       </div>
     );
     right = (
-      <div className="right">
-        <p>
+      <div className={styles.right}>
+        <p className={styles.userInfo}>
           {session.user.name} ({session.user.email})
         </p>
         <Link href="/create">
-          <Button>New post</Button>
-        </Link>
-        <Button onClick={() => signOut()}>Log out</Button>
-        <style jsx>{`
-          a {
-            text-decoration: none;
-            color: var(--geist-foreground);
-            display: inline-block;
-          }
-
-          p {
-            display: inline-block;
-            font-size: 13px;
-            padding-right: 1rem;
-          }
-
-          a + a {
-            margin-left: 1rem;
-          }
-
-          .right {
-            margin-left: auto;
-          }
-
-          .right a {
-            border: 1px solid var(--geist-foreground);
-            padding: 0.5rem 1rem;
-            border-radius: 3px;
-          }
-
-          button {
-            border: none;
-          }
-        `}</style>
+  <Button className={`${buttonStyles.button} ${buttonStyles.circularButton}`}>
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M10 4V16M4 10H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  </Button>
+</Link>
+        <Button 
+          className={`${styles.button} ${styles.logoutButton}`} 
+          onClick={() => signOut()}
+        >
+          Log out
+        </Button>
       </div>
     );
   }
 
   return (
-    <nav>
+    <nav className={styles.header}>
       {left}
       {right}
-      <style jsx>{`
-        nav {
-          display: flex;
-          padding: 2rem;
-          align-items: center;
-        }
-      `}</style>
     </nav>
   );
 };

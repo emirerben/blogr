@@ -50,7 +50,11 @@
 }
 
 .content {
-  /* display: none; */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  max-width: 100%;
 }
 
 .author {
@@ -60,6 +64,37 @@
 
 .actions {
   margin-top: 1rem;
+  display: flex;
+  gap: 10px;
+}
+
+.actionButton {
+  background-color: #f0f0f0;
+  color: #333;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.actionButton:hover {
+  opacity: 0.8;
+}
+
+.publishButton:hover {
+  background-color: #4caf50;
+  color: white;
+}
+
+.editButton:hover {
+  background-color: rgb(255, 204, 0);
+  color: white;
+}
+
+.deleteButton:hover {
+  background-color: #f44336;
+  color: white;
 }
 
 .button:hover {
@@ -75,7 +110,7 @@
 }
 
 .formContainer {
-  width: 100%;
+  /* width: 100%; */
   max-width: 800px;
   margin: 0 auto;
   padding: 1rem;
@@ -124,6 +159,8 @@
 
 .actions {
   margin-top: 1rem;
+  display: flex;
+  gap: 10px;
 }
 
 .back {

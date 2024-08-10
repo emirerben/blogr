@@ -10,10 +10,12 @@ const SetUsername = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (!session?.user?.email) return
+
     const response = await fetch('/api/set-username', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, userId: session.user.id }),
+      body: JSON.stringify({ username, userEmail: session.user.email }),
     })
     if (response.ok) {
       router.push('/create')
