@@ -17,7 +17,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     where: { 
       slug: postSlug,
       author: { username },
-      published: true, // Ensure only published posts are accessible
+      published: true,
     },
     include: { author: true },
   });
@@ -26,18 +26,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return { notFound: true };
   }
 
-  // Serialize the post, converting Date objects to strings
-  const serializedPost = {
-    ...post,
-    createdAt: toISOString(post.createdAt),
-    updatedAt: toISOString(post.updatedAt),
-    author: {
-      ...post.author,
-    },
-  };
-
   return {
-    props: { post: serializedPost },
+    redirect: {
+      destination: `/p/${post.id}`,
+      permanent: false,
+    },
   };
 };
 

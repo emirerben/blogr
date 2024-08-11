@@ -51,13 +51,12 @@ const Post: React.FC<{ post: PostProps }> = (props) => {
   const userHasValidSession = Boolean(session);
   const postBelongsToUser = session?.user?.email === props.post.author?.email;
 
-  const shareableLink = `${process.env.NEXT_PUBLIC_SITE_URL}/post/${props.post.author?.username}/${props.post.slug}`;
-
+  const shareableLink = `${process.env.NEXT_PUBLIC_SITE_URL}/p/${props.post.id}`;
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(shareableLink);
       setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000); // Reset after 2 seconds
+      setTimeout(() => setIsCopied(false), 2000);
     } catch (err) {
       console.error('Failed to copy');
     }
@@ -75,10 +74,12 @@ const Post: React.FC<{ post: PostProps }> = (props) => {
   };
 
   const deletePost = async (id: string) => {
-    await fetch(`/api/post/${id}`, {
-      method: 'DELETE',
-    });
-    Router.push('/');
+    if (confirm('Are you sure you want to delete this post?')) {
+      await fetch(`/api/post/${id}`, {
+        method: 'DELETE',
+      });
+      Router.push('/');
+    }
   };
 
   return (
@@ -86,21 +87,19 @@ const Post: React.FC<{ post: PostProps }> = (props) => {
       <div className={styles.page}>
         <h2 className={styles.title}>{props.post.title}</h2>
         <p className={styles.author}>By {props.post.author?.name || 'Unknown author'}</p>
-        {props.post.published && (
-          <div className={styles.shareLink}>
-            <Button 
-              className={`${styles.button} ${isCopied ? styles.copiedButton : ''}`} 
-              onClick={copyToClipboard}
-            >
-              <span className={styles.buttonText}>
-                {isCopied ? 'Copied' : 'Share'}
-              </span>
-              <span className={styles.icon}>
-                {isCopied ? '✅' : '🔗'}
-              </span>
-            </Button>
-          </div>
-        )}
+        <div className={styles.shareLink}>
+          <Button 
+            className={`${styles.button} ${isCopied ? styles.copiedButton : ''}`} 
+            onClick={copyToClipboard}
+          >
+            <span className={styles.buttonText}>
+              {isCopied ? 'Copied' : 'Share'}
+            </span>
+            <span className={styles.icon}>
+              {isCopied ? '✅' : '🔗'}
+            </span>
+          </Button>
+        </div>
         <div className={styles.content}>
           <ReactMarkdown>{props.post.content}</ReactMarkdown>
         </div>
@@ -131,6 +130,6 @@ const Post: React.FC<{ post: PostProps }> = (props) => {
       </div>
     </Layout>
   );
-};
+}
 
 export default Post;
