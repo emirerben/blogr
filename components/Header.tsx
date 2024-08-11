@@ -61,9 +61,11 @@ const Header: React.FC = () => {
     );
     right = (
       <div className={styles.right}>
-        <p className={styles.userInfo}>
-          {session.user.name} ({session.user.email})
-        </p>
+        {session.user && (
+          <p className={styles.userInfo}>
+            {session.user.name} ({session.user.email})
+          </p>
+        )}
         <Link href="/create">
   <Button className={`${buttonStyles.button} ${buttonStyles.circularButton}`}>
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -8,7 +8,7 @@ const SetUsername = () => {
   const { data: session } = useSession()
   const router = useRouter()
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!session?.user?.email) return
 
@@ -29,7 +29,7 @@ const SetUsername = () => {
         <input
           type="text"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}
           placeholder="Username"
           required
         />

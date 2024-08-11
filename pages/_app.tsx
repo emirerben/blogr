@@ -2,7 +2,11 @@ import { AppProps } from 'next/app'
 import { SessionProvider } from "next-auth/react"
 import '../styles/globals.css'
 
-function ErrorFallback({error}) {
+interface ErrorFallbackProps {
+  error: Error;
+}
+
+function ErrorFallback({ error }: ErrorFallbackProps) {
   return (
     <div role="alert">
       <p>Something went wrong:</p>

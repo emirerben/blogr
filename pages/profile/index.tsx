@@ -4,13 +4,22 @@ import prisma from '../../lib/prisma';
 import Layout from '../../components/Layout';
 
 type Props = {
-  user: { name: string; username: string } | null;
+  user: { name: string | null; username: string | null } | null;
 };
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
   const session = await getSession(context);
 
   if (!session) {
+    return {
+      redirect: {
+        destination: '/api/auth/signin',
+        permanent: false,
+      },
+    };
+  }
+
+  if (!session.user?.email) {
     return {
       redirect: {
         destination: '/api/auth/signin',
@@ -35,12 +44,17 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-const SubdomainPage: React.FC<Props> = ({ user }) => {
+const ProfilePage: React.FC<Props> = ({ user }) => {
+  if (!user) {
+    return <Layout><p>User not found</p></Layout>;
+  }
+
   return (
     <Layout>
-      <h1>{user?.name}'s Blog</h1>
+      <h1>{user.name ?? 'Unnamed User'}'s Profile</h1>
+      <p>Username: {user.username ?? 'Not set'}</p>
     </Layout>
   );
 };
 
-export default SubdomainPage;
+export default ProfilePage;

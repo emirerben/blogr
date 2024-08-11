@@ -20,17 +20,29 @@ declare module "next-auth" {
   }
 }
 
+if (!process.env.GOOGLE_CLIENT_ID) {
+  throw new Error('Missing GOOGLE_CLIENT_ID environment variable')
+}
+
+if (!process.env.GOOGLE_CLIENT_SECRET) {
+  throw new Error('Missing GOOGLE_CLIENT_SECRET environment variable')
+}
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
+      if (!user.email) {
+        return false; // Reject sign in if email is missing
+      }
+
       const existingUser = await prisma.user.findUnique({
         where: { email: user.email },
         include: { accounts: true },
@@ -41,16 +53,16 @@ export const authOptions: NextAuthOptions = {
         await prisma.account.create({
           data: {
             userId: existingUser.id,
-            type: account.type,
-            provider: account.provider,
-            providerAccountId: account.providerAccountId,
-            refresh_token: account.refresh_token,
-            access_token: account.access_token,
-            expires_at: account.expires_at,
-            token_type: account.token_type,
-            scope: account.scope,
-            id_token: account.id_token,
-            session_state: account.session_state,
+            type: account!.type,
+            provider: account!.provider,
+            providerAccountId: account!.providerAccountId,
+            refresh_token: account!.refresh_token,
+            access_token: account!.access_token,
+            expires_at: account!.expires_at,
+            token_type: account!.token_type,
+            scope: account!.scope,
+            id_token: account!.id_token,
+            session_state: account!.session_state,
           },
         });
         return true;

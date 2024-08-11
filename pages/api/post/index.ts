@@ -1,3 +1,4 @@
+import { NextApiRequest, NextApiResponse } from 'next'
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "../auth/[...nextauth]"
 import prisma from '../../../lib/prisma'
@@ -9,7 +10,7 @@ function generateSlug(title: string) {
     .replace(/ +/g, '-');
 }
 
-export default async function handle(req, res) {
+export default async function handle(req: NextApiRequest, res: NextApiResponse) {
   const { title, content, published } = req.body;
 
   const session = await getServerSession(req, res, authOptions)
@@ -40,6 +41,10 @@ export default async function handle(req, res) {
     res.json(result);
   } catch (error) {
     console.error("Error creating post:", error);
-    res.status(500).json({ error: "Error creating post", details: error.message });
+    if (error instanceof Error) {
+      res.status(500).json({ error: "Error creating post", details: error.message });
+    } else {
+      res.status(500).json({ error: "Error creating post", details: "An unknown error occurred" });
+    }
   }
 }
