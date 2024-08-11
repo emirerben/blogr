@@ -37,6 +37,9 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
         select: { name: true },
       },
     },
+    orderBy: {
+      createdAt: 'desc',
+    },
   });
 
   // Serialize the drafts, converting Date objects to strings
@@ -78,6 +81,15 @@ const Drafts: React.FC<{ drafts: PostProps[] }> = (props) => {
     Router.push(`/edit/${id}`);
   };
 
+  const deletePost = async (id: string) => {
+    if (confirm('Are you sure you want to delete this draft?')) {
+      await fetch(`/api/post/${id}`, {
+        method: 'DELETE',
+      });
+      Router.push('/drafts');
+    }
+  };
+  
   return (
     <Layout>
       <div className={styles.page}>
@@ -85,13 +97,10 @@ const Drafts: React.FC<{ drafts: PostProps[] }> = (props) => {
         <main className={styles.mainContent}>
           {props.drafts.map((post) => (
             <div key={post.id} className={styles.Post}>
-              <Post post={post} />
-              {/* <Button onClick={() => editPost(post.id)}>Edit</Button>
-              <Button onClick={() => publishPost(post.id)}>Publish</Button> */}
+              <Post post={post} onDelete={deletePost} />
             </div>
           ))}
         </main>
-        
       </div>
     </Layout>
   );

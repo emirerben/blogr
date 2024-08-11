@@ -173,6 +173,11 @@
   text-decoration: underline;
 }
 
+.copiedButton {
+  background-color: #cccccc;
+  color: #666666;
+}
+
 @media (min-width: 768px) {
   .formContainer {
     padding: 2rem;
@@ -185,4 +190,59 @@
   .textarea {
     font-size: 1.1rem;
   }
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  position: relative;
+  width: 100px; /* Set an initial width */
+}
+
+.button:hover,
+.copiedButton {
+  width: 140px; /* Expand width on hover and when copied */
+  background-color: #4CAF50;
+}
+
+.copiedButton {
+  background-color: #4CAF50;
+}
+
+.buttonText {
+  transition: transform 0.3s ease;
+  margin-right: 5px; /* Add some space between text and icon */
+}
+
+.icon {
+  position: absolute;
+  left: 20px; /* Start from the left side */
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.button:hover .icon,
+.copiedButton .icon {
+  opacity: 1;
+  left: 100px; /* Move icon to the right */
+}
+
+.button:hover .buttonText,
+.copiedButton .buttonText {
+  transform: translateX(-10px);
+}
+
+.shareLink {
+  margin-top: 20px;
+  margin-bottom: 20px;
 }

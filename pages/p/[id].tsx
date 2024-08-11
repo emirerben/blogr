@@ -43,7 +43,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 
 const Post: React.FC<{ post: PostProps }> = (props) => {
   const { data: session, status } = useSession();
-  const [copySuccess, setCopySuccess] = useState('');
+  const [isCopied, setIsCopied] = useState(false);
 
   if (status === 'loading') {
     return <div>Authenticating ...</div>;
@@ -56,10 +56,10 @@ const Post: React.FC<{ post: PostProps }> = (props) => {
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(shareableLink);
-      setCopySuccess('Link copied!');
-      setTimeout(() => setCopySuccess(''), 2000); // Clear message after 2 seconds
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000); // Reset after 2 seconds
     } catch (err) {
-      setCopySuccess('Failed to copy');
+      console.error('Failed to copy');
     }
   };
 
@@ -88,8 +88,17 @@ const Post: React.FC<{ post: PostProps }> = (props) => {
         <p className={styles.author}>By {props.post.author?.name || 'Unknown author'}</p>
         {props.post.published && (
           <div className={styles.shareLink}>
-            <Button className={styles.button} onClick={copyToClipboard}>Share</Button>
-            {copySuccess && <span className={styles.copyMessage}>{copySuccess}</span>}
+            <Button 
+              className={`${styles.button} ${isCopied ? styles.copiedButton : ''}`} 
+              onClick={copyToClipboard}
+            >
+              <span className={styles.buttonText}>
+                {isCopied ? 'Copied' : 'Share'}
+              </span>
+              <span className={styles.icon}>
+                {isCopied ? '✅' : '🔗'}
+              </span>
+            </Button>
           </div>
         )}
         <div className={styles.content}>

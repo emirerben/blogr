@@ -5,6 +5,7 @@ import Post, { PostProps } from "../components/Post"
 import prisma from '../lib/prisma'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
+import Router from 'next/router'  // Added this line
 import styles from '../components/Post.module.css'
 import Button from '../components/Button'
 import buttonStyles from '../components/Button.module.css'
@@ -16,6 +17,9 @@ export const getServerSideProps: GetServerSideProps = async () => {
       author: {
         select: { name: true },
       },
+    },
+    orderBy: {
+      createdAt: 'desc',
     },
   })
 
@@ -36,6 +40,15 @@ type Props = {
 const Blog: React.FC<Props> = (props) => {
   const { data: session } = useSession()
 
+  const deletePost = async (id: string) => {
+    if (confirm('Are you sure you want to delete this post?')) {
+      await fetch(`/api/post/${id}`, {
+        method: 'DELETE',
+      });
+      Router.push('/'); // Use the imported Router
+    }
+  };
+
   return (
     <Layout>
       <div className="page">
@@ -43,7 +56,7 @@ const Blog: React.FC<Props> = (props) => {
         <main>
           {props.feed.map((post) => (
             <div key={post.id}>
-              <Post post={post} />
+              <Post post={post} onDelete={deletePost} />
             </div>
           ))}
         </main>

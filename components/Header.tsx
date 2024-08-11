@@ -66,13 +66,13 @@ const Header: React.FC = () => {
             {session.user.name} ({session.user.email})
           </p>
         )}
-        <Link href="/create">
+        {/* <Link href="/create">
   <Button className={`${buttonStyles.button} ${buttonStyles.circularButton}`}>
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M10 4V16M4 10H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   </Button>
-</Link>
+</Link> */}
         <Button 
           className={`${styles.button} ${styles.logoutButton}`} 
           onClick={() => signOut()}
