@@ -2,6 +2,7 @@ import { GetServerSideProps } from 'next'
 import Layout from '../../components/Layout'
 import Post, { PostProps } from '../../components/Post'
 import prisma from '../../lib/prisma'
+import Router from 'next/router';
 
 // Helper function to safely convert Date to ISO string
 const toISOString = (date: Date | null | undefined) => date?.toISOString() ?? null;
@@ -50,13 +51,22 @@ type Props = {
 }
 
 const UserProfile: React.FC<Props> = ({ user, posts }) => {
+  const deletePost = async (id: string) => {
+    if (confirm('Are you sure you want to delete this post?')) {
+      await fetch(`/api/post/${id}`, {
+        method: 'DELETE',
+      });
+      Router.push(`/${user.username}`); // Refresh the page
+    }
+  };
+
   return (
     <Layout>
       <h1>{user.name}'s Blog</h1>
       <main>
         {posts.map((post) => (
           <div key={post.id} className="post">
-            <Post post={post} />
+            <Post post={post} onDelete={deletePost} />
           </div>
         ))}
       </main>

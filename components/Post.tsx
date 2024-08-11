@@ -28,8 +28,7 @@ const Post: React.FC<{ post: PostProps; onDelete: (id: string) => void }> = ({ p
 
   const formattedDate = new Date(post.createdAt).toLocaleDateString();
 
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleDelete = () => {
     onDelete(post.id);
   };
 
