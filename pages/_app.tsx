@@ -17,9 +17,9 @@ function ErrorFallback({ error }: ErrorFallbackProps) {
 
 const App = ({ Component, pageProps }: AppProps) => {
   return (
-      <SessionProvider session={pageProps.session}>
-        <Component {...pageProps} />
-      </SessionProvider>
+    <SessionProvider session={pageProps.session} refetchInterval={0}>
+      <Component {...pageProps} />
+    </SessionProvider>
   )
 }
 
