@@ -14,15 +14,17 @@ const toISOString = (date: Date | null) => date?.toISOString() ?? null;
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   const session = await getSession({ req });
-  console.log("Session:", session); // Add this line
+
   if (!session) {
-    res.statusCode = 403;
-    return { props: { drafts: [] } };
+    return {
+      props: { drafts: [] },
+    };
   }
 
   if (!session.user?.email) {
-    res.statusCode = 403;
-    return { props: { drafts: [] } };
+    return {
+      props: { drafts: [] },
+    };
   }
 
   const drafts = await prisma.post.findMany({
@@ -36,8 +38,6 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
       },
     },
   });
-  console.log("Drafts:", drafts); // Add this line
-
 
   // Serialize the drafts, converting Date objects to strings
   const serializedDrafts = drafts.map(draft => ({
@@ -52,7 +52,11 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
 };
 
 const Drafts: React.FC<{ drafts: PostProps[] }> = (props) => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+
+  if (status === "loading") {
+    return <Layout>Loading...</Layout>
+  }
 
   if (!session) {
     return (
