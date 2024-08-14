@@ -51,7 +51,7 @@ const Blog: React.FC<Props> = (props) => {
 
   return (
     <Layout>
-      <div className="page">
+      <div className={styles.page}>
         <h1>Public Feed</h1>
         <main>
           {props.feed.map((post) => (
