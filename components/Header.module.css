@@ -3,10 +3,9 @@
   padding: 1rem 2rem;
   align-items: center;
   background-color: white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: none !important;
+  border-bottom: none !important;
 }
-
-
 
 .left {
   display: flex;

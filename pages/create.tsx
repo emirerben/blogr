@@ -11,15 +11,11 @@ const CreatePost: React.FC = () => {
   const { data: session } = useSession();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const adjustTextareaHeight = () => {
+  useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
-  };
-
-  useEffect(() => {
-    adjustTextareaHeight();
   }, [content]);
 
   const submitData = async (e: React.SyntheticEvent) => {
@@ -58,16 +54,19 @@ const CreatePost: React.FC = () => {
             type="text"
             value={title}
           />
-          <textarea
-            ref={textareaRef}
-            className={styles.textarea}
-            onChange={(e) => {
-              setContent(e.target.value);
-              adjustTextareaHeight();
-            }}
-            placeholder="Write your post content here..."
-            value={content}
-          />
+          <div className={styles.textareaContainer}>
+            <div className={styles.animatedText}>
+              {content}
+              <span className={styles.cursor}></span>
+            </div>
+            <textarea
+              ref={textareaRef}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Write your post content here..."
+              value={content}
+              className={styles.textarea}
+            />
+          </div>
           <div className={styles.actions}>
             <Button
               disabled={!content || !title}

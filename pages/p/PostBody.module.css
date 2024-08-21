@@ -110,13 +110,16 @@
 }
 
 .formContainer {
-  /* width: 100%; */
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 1rem;
-  /* background-color: white; */
-  border-radius: 8px;
-  /* box-shadow: 0 2px 4px rgba(0,0,0,0.1); */
+  padding: 2rem;
+  max-width: 1200px;
+  
+}
+
+@media (max-width: 600px) {
+  .formContainer {
+
+    max-width: 800px;
+  }
 }
 
 .input,
@@ -141,41 +144,48 @@
 }
 
 .textarea {
-  font-size: 1rem;
-  line-height: 1.6;
+  font-size: 16px;
+  line-height: 1.5;
+  transition: all 0.3s ease;
+  min-height: 100px;
   resize: none;
   overflow: hidden;
-  min-height: 100px;
+
+  font-size: 16px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  position: relative;
 }
 
-.title {
-  font-size: 1.8rem;
-  color: var(--primary-color);
-  margin: 0 0 1rem 0;
-  font-weight: 300;
-  letter-spacing: 0.5px;
-  text-transform: capitalize;
+.textarea:focus {
+  outline: none;
+  border-color: #0070f3;
 }
 
-.actions {
-  margin-top: 1rem;
-  display: flex;
-  gap: 10px;
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
 
-.back {
-  margin-left: 1rem;
-  color: #666;
-  text-decoration: none;
+.cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1.2em;
+  background-color: #000;
+  margin-left: 2px;
+  animation: blink 0.7s infinite;
+  vertical-align: middle;
 }
 
-.back:hover {
-  text-decoration: underline;
-}
-
-.copiedButton {
-  background-color: #cccccc;
-  color: #666666;
+.animatedText {
+  display: inline-block;
+  font-family: monospace;
+  font-size: 16px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 @media (min-width: 768px) {
