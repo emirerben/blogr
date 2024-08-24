@@ -1,0 +1,16 @@
+.suggestionsContainer {
+    /* margin-top: 1rem; */
+    padding-bottom: 1rem;
+  }
+  
+  .suggestion {
+    margin-bottom: 0.5rem;
+    font-style: italic;
+    color: #b0b0b0;
+  }
+  
+  .error {
+    color: #ff0000;
+    font-weight: bold;
+    margin-top: 1rem;
+  }

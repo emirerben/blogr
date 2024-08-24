@@ -4,6 +4,7 @@ import Router from 'next/router';
 import { useSession } from 'next-auth/react';
 import styles from '../pages/p/PostBody.module.css';
 import Button from '../components/Button';
+import LLMSuggestions from '../components/LLMSuggestions';
 
 const CreatePost: React.FC = () => {
   const [title, setTitle] = useState('');
@@ -42,31 +43,27 @@ const CreatePost: React.FC = () => {
     );
   }
 
+  console.log('CreatePost rendered, content length:', content.length);
+
   return (
     <Layout>
       <div className={styles.formContainer}>
         <form onSubmit={submitData}>
           <input
             className={styles.input}
-            autoFocus
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Title"
             type="text"
             value={title}
           />
-          <div className={styles.textareaContainer}>
-            <div className={styles.animatedText}>
-              {content}
-              <span className={styles.cursor}></span>
-            </div>
-            <textarea
-              ref={textareaRef}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Write your post content here..."
-              value={content}
-              className={styles.textarea}
-            />
-          </div>
+          <textarea
+            ref={textareaRef}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="Write your post content here..."
+            value={content}
+            className={styles.textarea}
+          />
+          <LLMSuggestions content={content} title={title} />
           <div className={styles.actions}>
             <Button
               disabled={!content || !title}
@@ -82,6 +79,6 @@ const CreatePost: React.FC = () => {
       </div>
     </Layout>
   );
-};
+}
 
 export default CreatePost;
