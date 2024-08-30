@@ -7,6 +7,9 @@ import prisma from '../lib/prisma';
 import Router from 'next/router';
 import styles from '../components/Post.module.css';
 import Button from '../components/Button';
+import Link from 'next/link'
+import buttonStyles from '../components/Button.module.css'
+
 
 
 // Helper function to convert Date to ISO string
@@ -102,6 +105,17 @@ const Drafts: React.FC<{ drafts: PostProps[] }> = (props) => {
           ))}
         </main>
       </div>
+      {session && (
+        <div className={styles.createNewPost}>
+          <Link href="/create">
+            <Button className={`${buttonStyles.button} ${buttonStyles.circularButton}`}>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 4V16M4 10H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </Button>
+          </Link>
+        </div>
+      )}
     </Layout>
   );
 };

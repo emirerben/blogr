@@ -15,13 +15,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         model: "gpt-3.5-turbo",
         messages: [
           { role: "system", content: `You are an expert writing coach, helping users create engaging blog posts. Your goal is to ask thought-provoking questions that will help the user expand their ideas, add depth to their content, and improve the overall quality of their writing.` },
-          { role: "user", content: `The user is writing a blog post with the title: "${title}". The purpose of this post is: "${purpose}". Based on the following content, generate one thought-provoking question to help the user expand their ideas or address potential gaps in their writing:
+          { role: "user", content: `The user is writing a blog post with the title: "${title}". They might be writing a journal, brainstorming for ideas, or just writing about their memories and reflections to share with friends. Based on the following content, generate one thought-provoking question to help the user expand their ideas or address potential gaps in their writing:
 
 Content: "${content}"
 
-Provide a single, specific question that will encourage the user to think more deeply about their topic, consider different perspectives, or add more valuable information to their post.` }
+Provide a single, specific question that will encourage the user to think more deeply about their topic, reflect on their topic,consider different perspectives, or add more valuable information to their post.  ask one short, specific question to help the user expand their ideas or address gaps in their writing. Keep the question under 15 words.` }
         ],
-        max_tokens: 100,
+        max_tokens: 50,
         temperature: 0.7,
       });
 

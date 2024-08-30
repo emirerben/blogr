@@ -9,19 +9,30 @@ import Router from 'next/router'  // Added this line
 import styles from '../components/Post.module.css'
 import Button from '../components/Button'
 import buttonStyles from '../components/Button.module.css'
+import LandingPage from '../components/LandingPage'
+import { getSession } from 'next-auth/react' // Added this import
 
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await getSession(context);
+
+  if (!session?.user?.email) {
+    return { props: { feed: [] } };
+  }
+
   const feed = await prisma.post.findMany({
-    where: { published: true },
+    where: {
+      author: { email: session.user.email },
+      published: true,
+    },
     include: {
       author: {
-        select: { name: true },
+        select: { name: true, email: true },
       },
     },
     orderBy: {
       createdAt: 'desc',
     },
-  })
+  });
 
   // Convert Date objects to ISO strings
   const serializedFeed = feed.map(post => ({
@@ -48,6 +59,10 @@ const Blog: React.FC<Props> = (props) => {
       Router.push('/'); // Use the imported Router
     }
   };
+
+  if (!session) {
+    return <LandingPage />;
+  }
 
   return (
     <Layout>

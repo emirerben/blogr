@@ -7,15 +7,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const { username, userEmail } = req.body
+  console.log('Received request to set username:', { username, userEmail })
 
   try {
     const updatedUser = await prisma.user.update({
       where: { email: userEmail },
       data: { username },
     })
-
+    console.log('Username updated successfully:', updatedUser)
     res.status(200).json(updatedUser)
   } catch (error) {
+    console.error('Error updating username:', error)
     res.status(400).json({ message: 'Error updating username' })
   }
 }

@@ -23,15 +23,23 @@ const CreatePost: React.FC = () => {
     e.preventDefault();
     try {
       const body = { title, content, published: false };
+      console.log('Submitting draft:', body);
       const response = await fetch('/api/post', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Error response:', errorData);
+        throw new Error(`HTTP error! status: ${response.status}, message: ${JSON.stringify(errorData)}`);
+      }
       const data = await response.json();
+      console.log('Draft saved successfully:', data);
       await Router.push('/drafts');
     } catch (error) {
       console.error("Error submitting data:", error);
+      alert("Failed to save draft. Please try again.");
     }
   };
 
