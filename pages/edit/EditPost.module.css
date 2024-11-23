@@ -1,0 +1,99 @@
+.blockWrapper {
+  position: relative;
+  margin: 1rem 0;
+  padding: 1rem;
+  background: white;
+  border: 1px solid #eaeaea;
+  border-radius: 8px;
+  transition: box-shadow 0.2s ease;
+}
+
+.blockWrapper.dragging {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.blockControls {
+  position: absolute;
+  left: -40px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.blockWrapper:hover .blockControls {
+  opacity: 1;
+}
+
+.dragHandle {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f0f0;
+  border-radius: 4px;
+  cursor: grab;
+  color: #666;
+  user-select: none;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.deleteBlockButton {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: #f0f0f0;
+  color: #666;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.deleteBlockButton:hover {
+  background: #ff4444;
+  color: white;
+}
+
+.addBlockButton {
+  position: absolute;
+  left: 50%;
+  bottom: -12px;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: #f0f0f0;
+  color: #666;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 1;
+}
+
+.blockWrapper:hover .addBlockButton {
+  opacity: 1;
+}
+
+.addBlockButton:hover {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.blocks {
+  min-height: 200px;
+  padding: 1rem 0;
+} 

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GetServerSideProps } from 'next';
 import { useSession } from 'next-auth/react';
 import Layout from '../../components/Layout';
@@ -6,9 +6,19 @@ import Router from 'next/router';
 import prisma from '../../lib/prisma';
 import styles from '../p/PostBody.module.css';
 import Button from '../../components/Button';
+import BlockMenu from '../../components/BlockMenu';
+import BlockEditor from '../../components/BlockEditor';
+import { Block, BlockType } from '../../types/EditorTypes';
+import { v4 as uuidv4 } from 'uuid';
+import { parseContent, serializeBlocks } from '../../utils/blockUtils';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
-  const post = await prisma.post.findUnique({
+  if (!params?.id) {
+    return { notFound: true };
+  }
+
+  const post = await prisma!.post.findUnique({
     where: {
       id: String(params?.id),
     },
@@ -30,34 +40,57 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 
 const EditPost: React.FC<{ post: any }> = ({ post }) => {
   const [title, setTitle] = useState(post.title);
-  const [content, setContent] = useState(post.content);
-  const { data: session, status } = useSession();
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  const adjustTextareaHeight = () => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+  const [blocks, setBlocks] = useState<Block[]>(() => {
+    try {
+      return parseContent(post.content);
+    } catch (e) {
+      return [{
+        id: uuidv4(),
+        type: 'text',
+        content: post.content || ''
+      }];
     }
+  });
+  const [showBlockMenu, setShowBlockMenu] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const [insertIndex, setInsertIndex] = useState<number>(0);
+  const { data: session, status } = useSession();
+
+  const addBlock = (type: BlockType, index: number) => {
+    const newBlock: Block = {
+      id: uuidv4(),
+      type,
+      content: '',
+    };
+
+    setBlocks(prev => [
+      ...prev.slice(0, index + 1),
+      newBlock,
+      ...prev.slice(index + 1)
+    ]);
   };
 
-  useEffect(() => {
-    if (status === 'loading') return; // Do nothing while loading
-    if (!session) Router.push('/');
-  }, [session, status]);
+  const updateBlock = (id: string, data: Partial<Block>) => {
+    setBlocks(prev =>
+      prev.map(block =>
+        block.id === id ? { ...block, ...data } : block
+      )
+    );
+  };
 
-  useEffect(() => {
-    adjustTextareaHeight();
-  }, [content]);
-
-  if (status === 'loading') {
-    return <div>Authenticating ...</div>;
-  }
+  const deleteBlock = (id: string) => {
+    setBlocks(prev => prev.filter(block => block.id !== id));
+  };
 
   const submitData = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     try {
-      const body = { title, content };
+      const serializedContent = serializeBlocks(blocks);
+      const body = { 
+        title, 
+        content: serializedContent
+      };
+      
       await fetch(`/api/post/${post.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -65,8 +98,18 @@ const EditPost: React.FC<{ post: any }> = ({ post }) => {
       });
       await Router.push(post.published ? `/p/${post.id}` : '/drafts');
     } catch (error) {
-      console.error(error);
+      console.error('Error submitting data:', error);
     }
+  };
+
+  const onDragEnd = (result: any) => {
+    if (!result.destination) return;
+
+    const items = Array.from(blocks);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setBlocks(items);
   };
 
   return (
@@ -81,21 +124,77 @@ const EditPost: React.FC<{ post: any }> = ({ post }) => {
             type="text"
             value={title}
           />
-          <textarea
-            ref={textareaRef}
-            className={styles.textarea}
-            onChange={(e) => {
-              setContent(e.target.value);
-              adjustTextareaHeight();
-            }}
-            placeholder="Write your post content here..."
-            value={content}
-          />
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="blocks">
+              {(provided) => (
+                <div
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  className={styles.blocks}
+                >
+                  {blocks.map((block, index) => (
+                    <Draggable
+                      key={block.id}
+                      draggableId={block.id}
+                      index={index}
+                    >
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          className={`${styles.blockWrapper} ${
+                            snapshot.isDragging ? styles.dragging : ''
+                          }`}
+                        >
+                          <div className={styles.blockControls}>
+                            <div
+                              {...provided.dragHandleProps}
+                              className={styles.dragHandle}
+                            >
+                              ⋮⋮
+                            </div>
+                            <button
+                              type="button"
+                              className={styles.deleteBlockButton}
+                              onClick={() => deleteBlock(block.id)}
+                            >
+                              ×
+                            </button>
+                          </div>
+                          <BlockEditor
+                            block={block}
+                            onChange={(data) => updateBlock(block.id, data)}
+                            onDelete={() => deleteBlock(block.id)}
+                          />
+                          <button
+                            type="button"
+                            className={styles.addBlockButton}
+                            onClick={(e) => {
+                              const rect = e.currentTarget.getBoundingClientRect();
+                              setMenuPosition({ x: rect.left, y: rect.bottom });
+                              setShowBlockMenu(true);
+                              setInsertIndex(index + 1);
+                            }}
+                          >
+                            +
+                          </button>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+          {showBlockMenu && (
+            <BlockMenu
+              onSelect={(type) => addBlock(type, insertIndex)}
+              onClose={() => setShowBlockMenu(false)}
+            />
+          )}
           <div className={styles.actions}>
-            <Button
-              disabled={!content || !title}
-              type="submit"
-            >
+            <Button disabled={!blocks.length || !title} type="submit">
               Update {post.published ? 'Post' : 'Draft'}
             </Button>
             <a className={styles.back} href="#" onClick={() => Router.push(post.published ? `/p/${post.id}` : '/drafts')}>

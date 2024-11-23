@@ -256,3 +256,40 @@
   margin-top: 20px;
   margin-bottom: 20px;
 }
+
+.blocks {
+  position: relative;
+}
+
+.blockWrapper {
+  position: relative;
+  margin: 1rem 0;
+}
+
+.addBlockButton {
+  position: absolute;
+  left: -30px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: #f0f0f0;
+  color: #666;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.blockWrapper:hover .addBlockButton {
+  opacity: 1;
+}
+
+.addBlockButton:hover {
+  background: #e0e0e0;
+  color: #333;
+}

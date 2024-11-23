@@ -1,0 +1,84 @@
+.blockEditor {
+  position: relative;
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid #eaeaea;
+  border-radius: 8px;
+  background: white;
+}
+
+.blockContent {
+  width: 100%;
+}
+
+.textInput {
+  width: 100%;
+  min-height: 100px;
+  padding: 0.5rem;
+  border: none;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.headerBlock {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.headerSelect {
+  padding: 0.5rem;
+  border: 1px solid #eaeaea;
+  border-radius: 4px;
+}
+
+.headerInput {
+  flex: 1;
+  padding: 0.5rem;
+  border: none;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.urlInput,
+.captionInput {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  border: 1px solid #eaeaea;
+  border-radius: 4px;
+}
+
+.imagePreview {
+  max-width: 100%;
+  margin-top: 1rem;
+}
+
+.youtubePreview,
+.spotifyPreview {
+  margin-top: 1rem;
+}
+
+.deleteButton {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: none;
+  color: #999;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.deleteButton:hover {
+  background: #f0f0f0;
+  color: #666;
+} 

@@ -1,25 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { GetServerSideProps } from 'next';
-import ReactMarkdown from 'react-markdown';
 import Router from 'next/router';
-import Layout from '../../components/Layout';
-import { PostProps } from '../../components/Post';
 import { useSession } from 'next-auth/react';
-import prisma from '../../lib/prisma';
+import Layout from '../../components/Layout';
 import Button from '../../components/Button';
+import BlockRenderer from '../../components/BlockRenderer';
 import styles from './PostBody.module.css';
 
-// Helper function to safely convert Date to ISO string
-const toISOString = (date: Date | null | undefined) => date?.toISOString() ?? null;
-
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+  if (!prisma) throw new Error('Database client is not initialized');
+  
   const post = await prisma.post.findUnique({
     where: {
       id: String(params?.id),
     },
     include: {
       author: {
-        select: { name: true, email: true, username: true },
+        select: { name: true, email: true },
       },
     },
   });
@@ -28,30 +25,69 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
     return { notFound: true };
   }
 
-  // Convert Date objects to ISO strings
-  const serializedPost = {
-    ...post,
-    createdAt: toISOString(post.createdAt),
-    updatedAt: toISOString(post.updatedAt),
-    author: post.author,
-  };
-
   return {
-    props: { post: JSON.parse(JSON.stringify(serializedPost)) },
+    props: { 
+      post: JSON.parse(JSON.stringify(post))
+    },
   };
 };
 
-const Post: React.FC<{ post: PostProps }> = (props) => {
-  const { data: session, status } = useSession();
+interface PostProps {
+  post: {
+    id: string;
+    title: string;
+    content: string;
+    published: boolean;
+    author: {
+      name: string;
+      email: string;
+    } | null;
+  };
+}
+
+const Post: React.FC<PostProps> = ({ post }) => {
   const [isCopied, setIsCopied] = useState(false);
-
-  if (status === 'loading') {
-    return <div>Authenticating ...</div>;
-  }
+  const { data: session } = useSession();
   const userHasValidSession = Boolean(session);
-  const postBelongsToUser = session?.user?.email === props.post.author?.email;
+  const postBelongsToUser = session?.user?.email === post?.author?.email;
 
-  const shareableLink = `${process.env.NEXT_PUBLIC_SITE_URL}/p/${props.post.id}`;
+  const publishPost = async (id: string) => {
+    try {
+      await fetch(`/api/publish/${id}`, {
+        method: 'PUT',
+      });
+      Router.push('/');
+    } catch (error) {
+      console.error('Failed to publish post:', error);
+    }
+  };
+
+  const deletePost = async (id: string) => {
+    if (confirm('Are you sure you want to delete this post?')) {
+      try {
+        await fetch(`/api/post/${id}`, {
+          method: 'DELETE',
+        });
+        Router.push('/');
+      } catch (error) {
+        console.error('Failed to delete post:', error);
+      }
+    }
+  };
+
+  const blocks = useMemo(() => {
+    try {
+      return JSON.parse(post.content);
+    } catch (e) {
+      return [{
+        id: 'legacy',
+        type: 'text',
+        content: post.content
+      }];
+    }
+  }, [post.content]);
+
+  const shareableLink = `${process.env.NEXT_PUBLIC_SITE_URL}/p/${post.id}`;
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(shareableLink);
@@ -62,31 +98,11 @@ const Post: React.FC<{ post: PostProps }> = (props) => {
     }
   };
 
-  const editPost = () => {
-    Router.push(`/edit/${props.post.id}`);
-  };
-
-  const publishPost = async (id: string) => {
-    await fetch(`/api/publish/${id}`, {
-      method: 'PUT',
-    });
-    await Router.push('/');
-  };
-
-  const deletePost = async (id: string) => {
-    if (confirm('Are you sure you want to delete this post?')) {
-      await fetch(`/api/post/${id}`, {
-        method: 'DELETE',
-      });
-      Router.push('/');
-    }
-  };
-
   return (
     <Layout>
       <div className={styles.page}>
-        <h2 className={styles.title}>{props.post.title}</h2>
-        <p className={styles.author}>By {props.post.author?.name || 'Unknown author'}</p>
+        <h2 className={styles.title}>{post.title}</h2>
+        <p className={styles.author}>By {post.author?.name || 'Unknown author'}</p>
         <div className={styles.shareLink}>
           <Button 
             className={`${styles.button} ${isCopied ? styles.copiedButton : ''}`} 
@@ -101,27 +117,27 @@ const Post: React.FC<{ post: PostProps }> = (props) => {
           </Button>
         </div>
         <div className={styles.content}>
-          <ReactMarkdown>{props.post.content}</ReactMarkdown>
+          <BlockRenderer blocks={blocks} />
         </div>
         {userHasValidSession && postBelongsToUser && (
           <div className={styles.actions}>
-            {!props.post.published && (
+            {!post.published && (
               <Button
                 className={`${styles.actionButton} ${styles.publishButton}`}
-                onClick={() => publishPost(props.post.id)}
+                onClick={() => publishPost(post.id)}
               >
                 Publish
               </Button>
             )}
             <Button
               className={`${styles.actionButton} ${styles.editButton}`}
-              onClick={editPost}
+              onClick={() => Router.push(`/edit/${post.id}`)}
             >
               Edit
             </Button>
             <Button
               className={`${styles.actionButton} ${styles.deleteButton}`}
-              onClick={() => deletePost(props.post.id)}
+              onClick={() => deletePost(post.id)}
             >
               Delete
             </Button>
@@ -130,6 +146,6 @@ const Post: React.FC<{ post: PostProps }> = (props) => {
       </div>
     </Layout>
   );
-}
+};
 
 export default Post;
