@@ -96,7 +96,7 @@ const EditPost: React.FC<{ post: any }> = ({ post }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
-      await Router.push(post.published ? `/p/${post.id}` : '/drafts');
+      window.location.href = post.published ? `/p/${post.id}` : '/drafts';
     } catch (error) {
       console.error('Error submitting data:', error);
     }
